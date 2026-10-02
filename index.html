@@ -21,83 +21,98 @@
     }
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; }
+  html, body { margin: 0; max-width: 100%; }
   body {
     background: var(--bg); color: var(--ink);
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    padding: max(20px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+    padding: max(14px, env(safe-area-inset-top)) 12px max(20px, env(safe-area-inset-bottom));
     min-height: 100vh; display: flex; justify-content: center;
   }
-  main { width: 100%; max-width: 440px; }
-  h1 { font-size: 1.35rem; margin: 4px 0 4px; letter-spacing: -0.01em; }
-  .hint { color: var(--muted); font-size: 0.9rem; margin: 0 0 18px; line-height: 1.4; }
+  main { width: 100%; max-width: 440px; min-width: 0; }
+  h1 { font-size: 1.25rem; margin: 2px 0 4px; letter-spacing: -0.01em; }
+  .hint { color: var(--muted); font-size: 0.88rem; margin: 0 0 8px; line-height: 1.4; }
+  details.help { margin: 0 0 14px; font-size: 0.88rem; color: var(--muted); line-height: 1.4; }
+  details.help summary { cursor: pointer; font-weight: 600; color: var(--ink); padding: 4px 0; }
+  details.help p { margin: 4px 0 0; }
 
   .card {
     background: var(--surface); border: 2px solid var(--line);
-    border-radius: var(--radius); padding: 12px 16px 14px; margin-bottom: 12px;
+    border-radius: var(--radius); padding: 10px 12px 12px; margin-bottom: 10px;
   }
   .card:focus-within { border-color: var(--field); }
-  .head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-  .head h2 { font-size: 0.95rem; font-weight: 600; color: var(--muted); margin: 0; flex: 1; }
-  .tag { font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--line); color: var(--ink); }
+  .head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .head h2 { font-size: 0.9rem; font-weight: 600; color: var(--muted); margin: 0; flex: 1; min-width: 0; }
+  .tag { font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--line); color: var(--ink); white-space: nowrap; }
   .tag:empty { display: none; }
-  .grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 12px; align-items: end; }
-  .grid + .grid { margin-top: 10px; }
-  label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 2px; }
-  .inp { display: flex; align-items: baseline; gap: 6px; border-bottom: 2px solid var(--line); }
+  .grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 12px; align-items: end; }
+  .grid > div { min-width: 0; }
+  .grid + .grid { margin-top: 8px; }
+  label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .inp { display: flex; align-items: baseline; gap: 4px; border-bottom: 2px solid var(--line); min-width: 0; }
   .inp:focus-within { border-color: var(--field); }
   input {
-    flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink);
-    font: 600 1.6rem/1.3 system-ui, sans-serif; font-variant-numeric: tabular-nums; padding: 2px 0;
+    flex: 1 1 0; width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink);
+    font: 600 1.3rem/1.3 system-ui, sans-serif; font-variant-numeric: tabular-nums; padding: 2px 0; border-radius: 0;
   }
-  input.txt { font-size: 1.15rem; font-weight: 500; }
-  input.sm { font-size: 1.25rem; }
+  input.txt { font-size: 1.05rem; font-weight: 500; }
   input::placeholder { color: var(--line); }
-  .unit { font-weight: 600; color: var(--muted); white-space: nowrap; }
+  .unit { font-weight: 600; color: var(--muted); white-space: nowrap; flex: none; }
 
-  button { font: 600 1rem system-ui, sans-serif; color: var(--ink); }
-  button:focus-visible, input:focus-visible { outline: 3px solid var(--field); outline-offset: 2px; }
-  .rm { width: 32px; height: 32px; border: 0; border-radius: 99px; background: transparent; color: var(--muted); font-size: 1.1rem; padding: 0; }
+  button { font: 600 0.95rem system-ui, sans-serif; color: var(--ink); }
+  button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid var(--field); outline-offset: 2px; }
+  .rm { width: 32px; height: 32px; border: 0; border-radius: 99px; background: transparent; color: var(--muted); font-size: 1.1rem; padding: 0; flex: none; }
   .rm:active { background: var(--line); }
   .wide {
-    width: 100%; padding: 14px; border-radius: var(--radius);
-    border: 2px solid var(--line); background: transparent; margin-top: 2px;
+    width: 100%; padding: 13px; border-radius: var(--radius);
+    border: 2px solid var(--line); background: transparent;
   }
   .wide:active { background: var(--line); }
+  .primary { background: var(--field); border-color: var(--field); color: var(--field-ink); }
+  .primary:active { background: var(--field); opacity: .85; }
+  .actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-top: 12px; }
   #clear { margin-top: 14px; }
 
-  .msg { min-height: 1.3em; color: var(--warn); font-size: 0.95rem; margin: 10px 0 8px; }
+  .msg { min-height: 1.2em; color: var(--warn); font-size: 0.92rem; margin: 8px 0; }
 
   #out { display: none; }
   #out.on { display: block; }
-  #diagram { width: 100%; height: auto; display: block; margin: 0 0 8px; }
-  .res {
-    background: var(--field); color: var(--field-ink);
-    border-radius: var(--radius); padding: 10px 16px;
-  }
-  .res .line { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 8px 0; }
-  .res .line + .line, .res .costo { border-top: 1px solid rgba(255,255,255,.25); }
-  .res .nm { font-weight: 600; overflow-wrap: anywhere; }
-  .res .pc { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .res .sub { display: block; text-align: right; font-size: 0.9rem; opacity: .9; font-variant-numeric: tabular-nums; }
-  .res .costo { margin-top: 6px; padding-top: 10px; }
-  .res .costo .pc { font-size: 1.35rem; }
-  .check { color: var(--muted); font-size: 0.88rem; margin: 10px 2px 0; line-height: 1.4; }
+
+  /* resumen */
+  .sum { background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .sum-head { background: var(--field); color: var(--field-ink); padding: 10px 14px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .sum-head strong { font-size: 1rem; }
+  .sum-head span { font-size: 0.8rem; opacity: .85; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; padding: 12px 14px; }
+  .tile { background: var(--bg); border-radius: 10px; padding: 8px 10px; min-width: 0; }
+  .tile span { display: block; font-size: 0.72rem; color: var(--muted); }
+  .tile strong { display: block; font-size: 1.15rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .tile em { display: block; font-style: normal; font-size: 0.75rem; color: var(--muted); min-height: 1em; overflow-wrap: anywhere; }
+  .tbl { display: grid; padding: 0 14px; font-size: 0.92rem; }
+  .tbl .c { padding: 8px 0 8px 10px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tbl .c.n { text-align: left; padding-left: 0; font-weight: 600; white-space: normal; overflow-wrap: anywhere; min-width: 0; }
+  .tbl .c.h { font-size: 0.72rem; font-weight: 600; color: var(--muted); border-bottom: 2px solid var(--ink); padding-bottom: 5px; }
+  .tbl .c.t { font-weight: 700; border-bottom: 0; border-top: 2px solid var(--ink); margin-top: -1px; }
+  .sum .tiles.cost { padding-top: 10px; }
+  .check { color: var(--muted); font-size: 0.85rem; margin: 10px 2px 0; line-height: 1.4; }
 </style>
 </head>
 <body>
 <main>
   <h1>Cuadrado de Pearson</h1>
-  <p class="hint">Mezcla de 2 o más ingredientes para llegar a un valor objetivo. Los ingredientes se separan solos en dos grupos, por debajo y por encima del objetivo. Las "partes" definen cuánto pesa cada uno dentro de su grupo. Usá la misma base en todos los valores (todos en materia seca o todos tal cual).</p>
+  <p class="hint">Mezclá 2 o más ingredientes para llegar a un valor objetivo. Usá la misma base en todos los valores (todos en materia seca o todos tal cual).</p>
+  <details class="help">
+    <summary>¿Qué son las "partes"?</summary>
+    <p>Los ingredientes se separan solos en dos grupos: los que están por debajo del objetivo y los que están por encima. Cuando hay más de uno en un mismo grupo, las partes indican cuánto querés de cada uno respecto a los otros de su grupo. Por ejemplo, maíz 2 y sorgo 1 significa el doble de maíz que de sorgo. Si las dejás vacías, valen todos igual.</p>
+  </details>
 
   <div class="card">
     <div class="grid">
-      <div><label for="nut">Nutriente</label><div class="inp"><input class="txt" id="nut" data-g="nut" placeholder="Proteína" autocomplete="off"></div></div>
-      <div><label for="t">Objetivo</label><div class="inp"><input id="t" data-g="t" inputmode="decimal" placeholder="0" autocomplete="off"><span class="unit">%</span></div></div>
+      <div><label for="nut">Nutriente</label><div class="inp"><input class="txt" id="nut" placeholder="Proteína" autocomplete="off"></div></div>
+      <div><label for="t">Objetivo</label><div class="inp"><input id="t" inputmode="decimal" placeholder="0" autocomplete="off"><span class="unit">%</span></div></div>
     </div>
     <div class="grid">
-      <div><label for="lote">Mezcla a preparar (opcional)</label><div class="inp"><input class="sm" id="lote" data-g="lote" inputmode="decimal" placeholder="0" autocomplete="off"><span class="unit">kg</span></div></div>
-      <div><label for="cur">Moneda</label><div class="inp"><input class="txt" id="cur" data-g="cur" placeholder="$" autocomplete="off"></div></div>
+      <div><label for="lote">Mezcla a preparar (opcional)</label><div class="inp"><input id="lote" inputmode="decimal" placeholder="0" autocomplete="off"><span class="unit">kg</span></div></div>
+      <div><label for="cur">Moneda</label><div class="inp"><input class="txt" id="cur" placeholder="$" autocomplete="off"></div></div>
     </div>
   </div>
 
@@ -107,9 +122,12 @@
   <p class="msg" id="msg" role="alert"></p>
 
   <section id="out">
-    <svg id="diagram" viewBox="0 0 340 230" role="img" aria-label="Cuadrado de Pearson"></svg>
-    <div class="res" id="res"></div>
+    <div class="sum" id="sum"></div>
     <p class="check" id="check"></p>
+    <div class="actions">
+      <button class="wide primary" id="share" type="button">Compartir imagen</button>
+      <button class="wide" id="savepng" type="button">Guardar imagen</button>
+    </div>
   </section>
 
   <button class="wide" id="clear" type="button">Limpiar todo</button>
@@ -151,13 +169,111 @@
     var costKg = costOk ? sum(valid, function (v) { return xs[v.i] * v.cost / 100; }) : NaN;
     return {
       xs: xs, idx: valid.map(function (v) { return v.i; }),
-      avgL: avgL, avgH: avgH, pL: avgH - t, pH: t - avgL,
-      nL: L.length, nH: H.length, iL: L[0].i, iH: H[0].i,
       mix: sum(valid, function (v) { return xs[v.i] * v.c / 100; }),
       costKg: costKg
     };
   }
   // ---- fin cálculo ----
+
+  // ---- imagen ----
+  var FF = 'Roboto, Arial, sans-serif';
+  function fit(ctx, text, maxW, px, weight) {
+    while (px > 14) {
+      ctx.font = weight + ' ' + px + 'px ' + FF;
+      if (ctx.measureText(text).width <= maxW) break;
+      px -= 2;
+    }
+    return px;
+  }
+  function trunc(ctx, text, maxW) {
+    if (ctx.measureText(text).width <= maxW) return text;
+    while (text.length > 1 && ctx.measureText(text + '…').width > maxW) text = text.slice(0, -1);
+    return text + '…';
+  }
+  function rrect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+  function drawSummary(s, canvas) {
+    var W = 1080, P = 48, GREEN = '#1d4a37', INK = '#14261f', MUTED = '#55695f', LINE = '#d3ddd6', TILE = '#eef3ef';
+    var nRows = s.rows.length;
+    var H = 190 + 24 + 150 + 30 + 64 + nRows * 70 + 80 + (s.hasCost ? 30 + 150 : 0) + 48;
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+
+    // encabezado
+    ctx.fillStyle = GREEN; ctx.fillRect(0, 0, W, 170);
+    ctx.fillStyle = '#f2f7f3'; ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+    ctx.font = '700 56px ' + FF; ctx.fillText('Resumen de mezcla', P, 88);
+    ctx.font = '400 30px ' + FF; ctx.globalAlpha = 0.85; ctx.fillText('Cuadrado de Pearson  ·  ' + s.date, P, 134); ctx.globalAlpha = 1;
+
+    function tile(x, y, w, label, value, sub) {
+      ctx.fillStyle = TILE; rrect(ctx, x, y, w, 150, 18); ctx.fill();
+      ctx.fillStyle = MUTED; ctx.font = '400 26px ' + FF; ctx.fillText(label, x + 22, y + 40);
+      var px = fit(ctx, value, w - 44, 48, '700');
+      ctx.fillStyle = INK; ctx.font = '700 ' + px + 'px ' + FF; ctx.fillText(value, x + 22, y + 92);
+      if (sub) { ctx.fillStyle = MUTED; ctx.font = '400 26px ' + FF; ctx.fillText(trunc(ctx, sub, w - 44), x + 22, y + 130); }
+    }
+    var y = 190 + 24 - 24 + 24; // 214 - se deja un respiro bajo el encabezado
+    y = 194;
+    var tw = (W - 2 * P - 20) / 2;
+    var nutTxt = s.nut || '';
+    tile(P, y, tw, 'Objetivo', fmt(s.t) + ' %', nutTxt);
+    tile(P + tw + 20, y, tw, 'Mezcla obtenida', fmt(s.mix) + ' %', nutTxt);
+    y += 150 + 30;
+
+    // tabla
+    var cols = ['n', 'p'];
+    if (s.hasLote) cols.push('k');
+    if (s.hasCost) cols.push('c');
+    var wd = { p: 170, k: 210, c: 260 };
+    var edge = {}, x = W - P;
+    for (var i = cols.length - 1; i >= 1; i--) { edge[cols[i]] = x; x -= wd[cols[i]]; }
+    var nameW = x - P - 10;
+    var head = { n: 'Ingrediente', p: '%', k: 'kg', c: 'Costo ' + s.cur + (s.hasLote ? '' : '/kg') };
+    ctx.fillStyle = MUTED; ctx.font = '700 24px ' + FF;
+    cols.forEach(function (c) { ctx.textAlign = c === 'n' ? 'left' : 'right'; ctx.fillText(head[c], c === 'n' ? P : edge[c], y + 40); });
+    ctx.fillStyle = INK; ctx.fillRect(P, y + 54, W - 2 * P, 3);
+    y += 64;
+    s.rows.forEach(function (r) {
+      var cell = { n: r.name, p: fmt(r.x) + ' %', k: r.kg === null ? '' : fmt(r.kg), c: r.cost === null ? '' : fmt(r.cost) };
+      ctx.fillStyle = INK;
+      cols.forEach(function (c) {
+        ctx.textAlign = c === 'n' ? 'left' : 'right';
+        ctx.font = (c === 'n' ? '600 ' : '400 ') + '32px ' + FF;
+        ctx.fillText(c === 'n' ? trunc(ctx, cell.n, nameW) : cell[c], c === 'n' ? P : edge[c], y + 46);
+      });
+      ctx.fillStyle = LINE; ctx.fillRect(P, y + 69, W - 2 * P, 2);
+      y += 70;
+    });
+    // total
+    ctx.fillStyle = INK; ctx.fillRect(P, y, W - 2 * P, 3);
+    var tot = { n: 'Total', p: '100,00 %', k: s.hasLote ? fmt(s.lote) : '', c: s.hasCost ? fmt(s.totCost) : '' };
+    cols.forEach(function (c) {
+      ctx.textAlign = c === 'n' ? 'left' : 'right'; ctx.font = '700 32px ' + FF;
+      ctx.fillText(tot[c], c === 'n' ? P : edge[c], y + 52);
+    });
+    y += 80;
+
+    // costos
+    if (s.hasCost) {
+      y += 30; ctx.textAlign = 'left';
+      if (s.hasLote) {
+        tile(P, y, tw, 'Costo por kg de mezcla', s.cur + ' ' + fmt(s.costKg), '');
+        tile(P + tw + 20, y, tw, 'Costo del lote', s.cur + ' ' + fmt(s.costLote), fmt(s.lote) + ' kg');
+      } else {
+        tile(P, y, W - 2 * P, 'Costo por kg de mezcla', s.cur + ' ' + fmt(s.costKg), '');
+      }
+    }
+    return canvas;
+  }
+  // ---- fin imagen ----
 
   var $ = function (id) { return document.getElementById(id); };
   var KEY = 'pearson-estado-v2';
@@ -171,9 +287,10 @@
   } catch (e) {}
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
+  var lastSummary = null;
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  function cut(s, n) { return s.length > n ? s.slice(0, n - 1) + '…' : s; }
   function nameOf(i) { return (state.items[i].n || '').trim() || ('Ingrediente ' + (i + 1)); }
+  function curSym() { return (state.cur || '').trim() || '$'; }
 
   function build() {
     var h = '';
@@ -186,38 +303,50 @@
           '<div><label>Contenido</label><div class="inp"><input data-k="c" inputmode="decimal" placeholder="0" autocomplete="off" value="' + esc(it.c) + '"><span class="unit">%</span></div></div>' +
         '</div>' +
         '<div class="grid">' +
-          '<div><label>Costo (opcional)</label><div class="inp"><input class="sm" data-k="cost" inputmode="decimal" placeholder="0" autocomplete="off" value="' + esc(it.cost) + '"><span class="unit cur">' + esc(state.cur || '$') + '/kg</span></div></div>' +
-          '<div><label>Partes en su grupo</label><div class="inp"><input class="sm" data-k="p" inputmode="decimal" placeholder="1" autocomplete="off" value="' + esc(it.p) + '"></div></div>' +
+          '<div><label class="curlbl">Costo (' + esc(curSym()) + '/kg)</label><div class="inp"><input data-k="cost" inputmode="decimal" placeholder="0" autocomplete="off" value="' + esc(it.cost) + '"></div></div>' +
+          '<div><label>Partes en su grupo</label><div class="inp"><input data-k="p" inputmode="decimal" placeholder="1" autocomplete="off" value="' + esc(it.p) + '"></div></div>' +
         '</div></div>';
     });
     $('list').innerHTML = h;
     $('add').style.display = state.items.length >= MAX ? 'none' : '';
   }
 
-  function diagram(r, t) {
-    function box(x, y, w, hh, top, bottom, dark) {
-      var fill = dark ? 'var(--field)' : 'var(--surface)', stroke = dark ? 'var(--field)' : 'var(--line)', ink = dark ? 'var(--field-ink)' : 'var(--ink)';
-      return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" rx="10" fill="' + fill + '" stroke="' + stroke + '" stroke-width="2"/>' +
-        '<text x="' + (x + w / 2) + '" y="' + (y + 22) + '" text-anchor="middle" font-size="12" fill="' + ink + '" opacity=".8">' + top + '</text>' +
-        '<text x="' + (x + w / 2) + '" y="' + (y + 43) + '" text-anchor="middle" font-size="19" font-weight="700" fill="' + ink + '">' + bottom + '</text>';
+  function today() {
+    try { return new Date().toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', year: 'numeric' }); }
+    catch (e) { return new Date().toISOString().slice(0, 10); }
+  }
+
+  function renderSummary(s) {
+    var cols = ['n', 'p'];
+    if (s.hasLote) cols.push('k');
+    if (s.hasCost) cols.push('c');
+    var head = { n: 'Ingrediente', p: '%', k: 'kg', c: 'Costo ' + s.cur + (s.hasLote ? '' : '/kg') };
+    var tpl = 'minmax(0,1fr)' + cols.slice(1).map(function () { return ' auto'; }).join('');
+    var t = '<div class="tbl" style="grid-template-columns:' + tpl + '">';
+    cols.forEach(function (c) { t += '<div class="c h' + (c === 'n' ? ' n' : '') + '">' + esc(head[c]) + '</div>'; });
+    s.rows.forEach(function (r) {
+      var cell = { n: r.name, p: fmt(r.x) + ' %', k: r.kg === null ? '' : fmt(r.kg), c: r.cost === null ? '' : fmt(r.cost) };
+      cols.forEach(function (c) { t += '<div class="c' + (c === 'n' ? ' n' : '') + '">' + esc(cell[c]) + '</div>'; });
+    });
+    var tot = { n: 'Total', p: '100,00 %', k: s.hasLote ? fmt(s.lote) : '', c: s.hasCost ? fmt(s.totCost) : '' };
+    cols.forEach(function (c) { t += '<div class="c t' + (c === 'n' ? ' n' : '') + '">' + esc(tot[c]) + '</div>'; });
+    t += '</div>';
+
+    function tile(label, value, sub) { return '<div class="tile"><span>' + esc(label) + '</span><strong>' + esc(value) + '</strong><em>' + esc(sub || '') + '</em></div>'; }
+    var html = '<div class="sum-head"><strong>Resumen de mezcla</strong><span>' + esc(s.date) + '</span></div>';
+    html += '<div class="tiles">' + tile('Objetivo', fmt(s.t) + ' %', s.nut) + tile('Mezcla obtenida', fmt(s.mix) + ' %', s.nut) + '</div>';
+    html += t;
+    if (s.hasCost) {
+      html += '<div class="tiles cost">' + tile('Costo por kg de mezcla', s.cur + ' ' + fmt(s.costKg), '') +
+        (s.hasLote ? tile('Costo del lote', s.cur + ' ' + fmt(s.costLote), fmt(s.lote) + ' kg') : '') + '</div>';
     }
-    var lblL = r.nL === 1 ? esc(cut(nameOf(r.iL), 14)) : 'Grupo bajo (' + r.nL + ')';
-    var lblH = r.nH === 1 ? esc(cut(nameOf(r.iH), 14)) : 'Grupo alto (' + r.nH + ')';
-    var h = '<line x1="108" y1="40" x2="232" y2="190" stroke="var(--muted)" stroke-width="2"/>' +
-            '<line x1="108" y1="190" x2="232" y2="40" stroke="var(--muted)" stroke-width="2"/>';
-    h += box(4, 14, 104, 52, lblL, fmt(r.avgL), false);
-    h += box(4, 164, 104, 52, lblH, fmt(r.avgH), false);
-    h += box(134, 88, 72, 54, 'objetivo', fmt(t), true);
-    h += box(232, 14, 104, 52, 'partes grupo bajo', fmt(r.pL), false);
-    h += box(232, 164, 104, 52, 'partes grupo alto', fmt(r.pH), false);
-    $('diagram').innerHTML = h;
+    $('sum').innerHTML = html;
   }
 
   function calc() {
-    var t = parse(state.t), lote = parse(state.lote), cur = (state.cur || '').trim() || '$';
+    var t = parse(state.t), lote = parse(state.lote), cur = curSym();
     var items = state.items.map(function (it) { return { content: parse(it.c), parts: parse(it.p), cost: parse(it.cost) }; });
 
-    // etiquetas de grupo
     var cards = $('list').children;
     items.forEach(function (it, i) {
       var tag = '';
@@ -228,38 +357,62 @@
     var r = solve(items, t);
     $('msg').textContent = r.err || '';
     $('check').textContent = '';
-    if (!r.xs) { $('out').classList.remove('on'); return; }
+    if (!r.xs) { lastSummary = null; $('out').classList.remove('on'); return; }
 
-    diagram(r, t);
     var hasLote = isFinite(lote) && lote > 0;
     var hasCost = isFinite(r.costKg);
-    var html = '';
-    r.idx.forEach(function (i) {
+    var rows = r.idx.map(function (i) {
       var x = r.xs[i], c = items[i].cost;
-      var sub = [];
-      if (hasLote) sub.push(fmt(lote * x / 100) + ' kg');
-      if (hasCost) sub.push(cur + ' ' + fmt(x * c / 100) + ' por kg de mezcla');
-      html += '<div class="line"><span class="nm">' + esc(nameOf(i)) + '</span><span><span class="pc">' + fmt(x) + ' %</span>' +
-        sub.map(function (s) { return '<span class="sub">' + esc(s) + '</span>'; }).join('') + '</span></div>';
+      return {
+        name: nameOf(i), x: x,
+        kg: hasLote ? lote * x / 100 : null,
+        cost: hasCost ? (hasLote ? lote * x / 100 * c : x * c / 100) : null
+      };
     });
-    if (hasCost) {
-      html += '<div class="line costo"><span class="nm">Costo de la mezcla</span><span><span class="pc">' + esc(cur) + ' ' + fmt(r.costKg) + '</span><span class="sub">por kg</span>' +
-        (hasLote ? '<span class="sub">' + esc(cur) + ' ' + fmt(r.costKg * lote) + ' el lote de ' + fmt(lote, lote % 1 ? 2 : 0) + ' kg</span>' : '') + '</span></div>';
-    }
-    $('res').innerHTML = html;
+    lastSummary = {
+      nut: (state.nut || '').trim(), t: t, mix: r.mix, cur: cur, date: today(),
+      hasLote: hasLote, lote: hasLote ? lote : 0,
+      hasCost: hasCost, costKg: r.costKg,
+      costLote: hasCost && hasLote ? r.costKg * lote : NaN,
+      totCost: hasCost ? (hasLote ? r.costKg * lote : r.costKg) : NaN,
+      rows: rows
+    };
+    renderSummary(lastSummary);
 
-    var nut = (state.nut || '').trim();
-    var note = 'Verificación: la mezcla da ' + fmt(r.mix) + ' %' + (nut ? ' de ' + nut.toLowerCase() : '') + '.';
     if (!hasCost) {
-      var anyCost = items.some(function (it, i) { return r.xs[i] !== undefined && isFinite(it.cost); });
+      var anyCost = r.idx.some(function (i) { return isFinite(items[i].cost); });
       if (anyCost) {
         var falta = r.idx.filter(function (i) { return !isFinite(items[i].cost); }).map(nameOf);
-        note += ' Para calcular el costo falta cargar el de: ' + falta.join(', ') + '.';
+        $('check').textContent = 'Para calcular el costo falta cargar el de: ' + falta.join(', ') + '.';
       }
     }
-    $('check').textContent = note;
     $('out').classList.add('on');
   }
+
+  // imagen: compartir / guardar
+  function makeBlob(cb) {
+    if (!lastSummary) return;
+    var canvas = drawSummary(lastSummary, document.createElement('canvas'));
+    canvas.toBlob(function (blob) { if (blob) cb(blob); }, 'image/png');
+  }
+  function fileName() { return 'mezcla-pearson-' + new Date().toISOString().slice(0, 10) + '.png'; }
+  function download(blob) {
+    var url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = fileName();
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+  }
+  $('savepng').addEventListener('click', function () { makeBlob(download); });
+  $('share').addEventListener('click', function () {
+    makeBlob(function (blob) {
+      var file = new File([blob], fileName(), { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+        navigator.share({ files: [file], title: 'Resumen de mezcla' }).catch(function (err) {
+          if (!err || err.name !== 'AbortError') download(blob);
+        });
+      } else { download(blob); }
+    });
+  });
 
   // eventos
   $('list').addEventListener('input', function (e) {
@@ -280,8 +433,8 @@
     $(g).addEventListener('input', function () {
       state[g] = $(g).value;
       if (g === 'cur') {
-        var u = document.querySelectorAll('.unit.cur');
-        for (var j = 0; j < u.length; j++) u[j].textContent = ($(g).value.trim() || '$') + '/kg';
+        var u = document.querySelectorAll('.curlbl');
+        for (var j = 0; j < u.length; j++) u[j].textContent = 'Costo (' + curSym() + '/kg)';
       }
       save(); calc();
     });

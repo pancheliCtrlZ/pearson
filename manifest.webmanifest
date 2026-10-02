@@ -1,7 +1,8 @@
 {
+  "id": "pearson-mezclas",
   "name": "Cuadrado de Pearson",
   "short_name": "Pearson",
-  "description": "Calcula la proporción de dos ingredientes para llegar a un valor objetivo",
+  "description": "Calcula la proporción de ingredientes para llegar a un valor objetivo, con costo",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

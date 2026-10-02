@@ -1,16 +1,17 @@
-CUADRADO DE PEARSON (2 o mas ingredientes, con costo) - como publicarlo (GitHub Pages)
+CUADRADO DE PEARSON - como actualizarlo (GitHub Pages)
 
-Si es la primera vez:
-1. Crea el repositorio: https://github.com/new  (nombre: pearson, Public)
-2. Subi los archivos: https://github.com/panchelictrlz/pearson/upload/main
-   (index.html, manifest.webmanifest, sw.js y los tres .png) > Commit changes.
-3. Activa la publicacion: https://github.com/panchelictrlz/pearson/settings/pages
-   Source: Deploy from a branch > Branch: main, /(root) > Save.
-4. En 1-2 minutos abri: https://panchelictrlz.github.io/pearson/
-5. En Chrome (tres puntos) > Instalar aplicacion.
+1. Entra a https://github.com/panchelictrlz/pearson/upload/main
+2. Subi TODOS los archivos de esta carpeta (index.html, manifest.webmanifest, sw.js
+   y los tres .png). Reemplazan a los anteriores. Commit changes.
+3. Espera 1-2 minutos y abri https://panchelictrlz.github.io/pearson/
+   IMPORTANTE: la direccion tiene que terminar en /pearson/ (no en /margen/).
+4. Chrome (tres puntos) > Instalar aplicacion.
 
-Si ya lo habias publicado con la version anterior:
-- Volve a subir los archivos al mismo repositorio (Add file > Upload files),
-  reemplazando los que ya existen, y Commit changes.
-- Espera 1-2 minutos y abri la app instalada. Cerrala y abrila dos veces
-  para que tome la version nueva.
+Si ya tenias instalada la version anterior: cerrala y abrila dos veces para
+que tome la version nueva.
+
+Si Chrome dice "ya se instalo esta app":
+- Revisa que estas en /pearson/ y que los archivos de Pearson NO se subieron
+  al repositorio "margen" (si se subieron ahi, pisaron la calculadora de margen).
+- Esta version trae un identificador propio, para que Chrome la distinga de la
+  calculadora de margen.
