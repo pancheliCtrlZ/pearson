@@ -111,7 +111,7 @@
       <div><label for="t">Objetivo</label><div class="inp"><input id="t" inputmode="decimal" placeholder="0" autocomplete="off"><span class="unit">%</span></div></div>
     </div>
     <div class="grid">
-      <div><label for="lote">Mezcla a preparar (opcional)</label><div class="inp"><input id="lote" inputmode="decimal" placeholder="0" autocomplete="off"><span class="unit">kg</span></div></div>
+      <div><label for="lote">Mezcla a preparar (opcional)</label><div class="inp"><input id="lote" inputmode="decimal" placeholder="0" autocomplete="off"><span class="unit">t</span></div></div>
       <div><label for="cur">Moneda</label><div class="inp"><input class="txt" id="cur" placeholder="$" autocomplete="off"></div></div>
     </div>
   </div>
@@ -166,11 +166,11 @@
     L.forEach(function (v) { xs[v.i] = 100 * xL * v.p / sL; });
     H.forEach(function (v) { xs[v.i] = 100 * xH * v.p / sH; });
     var costOk = valid.every(function (v) { return isFinite(v.cost); });
-    var costKg = costOk ? sum(valid, function (v) { return xs[v.i] * v.cost / 100; }) : NaN;
+    var costT = costOk ? sum(valid, function (v) { return xs[v.i] * v.cost / 100; }) : NaN;
     return {
       xs: xs, idx: valid.map(function (v) { return v.i; }),
       mix: sum(valid, function (v) { return xs[v.i] * v.c / 100; }),
-      costKg: costKg
+      costT: costT
     };
   }
   // ---- fin cálculo ----
@@ -236,7 +236,7 @@
     var edge = {}, x = W - P;
     for (var i = cols.length - 1; i >= 1; i--) { edge[cols[i]] = x; x -= wd[cols[i]]; }
     var nameW = x - P - 10;
-    var head = { n: 'Ingrediente', p: '%', k: 'kg', c: 'Costo ' + s.cur + (s.hasLote ? '' : '/kg') };
+    var head = { n: 'Ingrediente', p: '%', k: 'kg', c: 'Costo ' + s.cur + (s.hasLote ? '' : '/t') };
     ctx.fillStyle = MUTED; ctx.font = '700 24px ' + FF;
     cols.forEach(function (c) { ctx.textAlign = c === 'n' ? 'left' : 'right'; ctx.fillText(head[c], c === 'n' ? P : edge[c], y + 40); });
     ctx.fillStyle = INK; ctx.fillRect(P, y + 54, W - 2 * P, 3);
@@ -254,7 +254,7 @@
     });
     // total
     ctx.fillStyle = INK; ctx.fillRect(P, y, W - 2 * P, 3);
-    var tot = { n: 'Total', p: '100,00 %', k: s.hasLote ? fmt(s.lote) : '', c: s.hasCost ? fmt(s.totCost) : '' };
+    var tot = { n: 'Total', p: '100,00 %', k: s.hasLote ? fmt(s.lote * 1000) : '', c: s.hasCost ? fmt(s.totCost) : '' };
     cols.forEach(function (c) {
       ctx.textAlign = c === 'n' ? 'left' : 'right'; ctx.font = '700 32px ' + FF;
       ctx.fillText(tot[c], c === 'n' ? P : edge[c], y + 52);
@@ -265,10 +265,10 @@
     if (s.hasCost) {
       y += 30; ctx.textAlign = 'left';
       if (s.hasLote) {
-        tile(P, y, tw, 'Costo por kg de mezcla', s.cur + ' ' + fmt(s.costKg), '');
-        tile(P + tw + 20, y, tw, 'Costo del lote', s.cur + ' ' + fmt(s.costLote), fmt(s.lote) + ' kg');
+        tile(P, y, tw, 'Costo por tonelada de mezcla', s.cur + ' ' + fmt(s.costT), '');
+        tile(P + tw + 20, y, tw, 'Costo del lote', s.cur + ' ' + fmt(s.costLote), fmt(s.lote) + ' t');
       } else {
-        tile(P, y, W - 2 * P, 'Costo por kg de mezcla', s.cur + ' ' + fmt(s.costKg), '');
+        tile(P, y, W - 2 * P, 'Costo por tonelada de mezcla', s.cur + ' ' + fmt(s.costT), '');
       }
     }
     return canvas;
@@ -276,7 +276,7 @@
   // ---- fin imagen ----
 
   var $ = function (id) { return document.getElementById(id); };
-  var KEY = 'pearson-estado-v2';
+  var KEY = 'pearson-estado-v4';
   var MAX = 12;
   function blank() { return { n: '', c: '', cost: '', p: '' }; }
   function fresh() { return { nut: '', t: '', lote: '', cur: '$', items: [blank(), blank()] }; }
@@ -303,7 +303,7 @@
           '<div><label>Contenido</label><div class="inp"><input data-k="c" inputmode="decimal" placeholder="0" autocomplete="off" value="' + esc(it.c) + '"><span class="unit">%</span></div></div>' +
         '</div>' +
         '<div class="grid">' +
-          '<div><label class="curlbl">Costo (' + esc(curSym()) + '/kg)</label><div class="inp"><input data-k="cost" inputmode="decimal" placeholder="0" autocomplete="off" value="' + esc(it.cost) + '"></div></div>' +
+          '<div><label class="curlbl">Costo (' + esc(curSym()) + '/t)</label><div class="inp"><input data-k="cost" inputmode="decimal" placeholder="0" autocomplete="off" value="' + esc(it.cost) + '"></div></div>' +
           '<div><label>Partes en su grupo</label><div class="inp"><input data-k="p" inputmode="decimal" placeholder="1" autocomplete="off" value="' + esc(it.p) + '"></div></div>' +
         '</div></div>';
     });
@@ -320,7 +320,7 @@
     var cols = ['n', 'p'];
     if (s.hasLote) cols.push('k');
     if (s.hasCost) cols.push('c');
-    var head = { n: 'Ingrediente', p: '%', k: 'kg', c: 'Costo ' + s.cur + (s.hasLote ? '' : '/kg') };
+    var head = { n: 'Ingrediente', p: '%', k: 'kg', c: 'Costo ' + s.cur + (s.hasLote ? '' : '/t') };
     var tpl = 'minmax(0,1fr)' + cols.slice(1).map(function () { return ' auto'; }).join('');
     var t = '<div class="tbl" style="grid-template-columns:' + tpl + '">';
     cols.forEach(function (c) { t += '<div class="c h' + (c === 'n' ? ' n' : '') + '">' + esc(head[c]) + '</div>'; });
@@ -328,7 +328,7 @@
       var cell = { n: r.name, p: fmt(r.x) + ' %', k: r.kg === null ? '' : fmt(r.kg), c: r.cost === null ? '' : fmt(r.cost) };
       cols.forEach(function (c) { t += '<div class="c' + (c === 'n' ? ' n' : '') + '">' + esc(cell[c]) + '</div>'; });
     });
-    var tot = { n: 'Total', p: '100,00 %', k: s.hasLote ? fmt(s.lote) : '', c: s.hasCost ? fmt(s.totCost) : '' };
+    var tot = { n: 'Total', p: '100,00 %', k: s.hasLote ? fmt(s.lote * 1000) : '', c: s.hasCost ? fmt(s.totCost) : '' };
     cols.forEach(function (c) { t += '<div class="c t' + (c === 'n' ? ' n' : '') + '">' + esc(tot[c]) + '</div>'; });
     t += '</div>';
 
@@ -337,8 +337,8 @@
     html += '<div class="tiles">' + tile('Objetivo', fmt(s.t) + ' %', s.nut) + tile('Mezcla obtenida', fmt(s.mix) + ' %', s.nut) + '</div>';
     html += t;
     if (s.hasCost) {
-      html += '<div class="tiles cost">' + tile('Costo por kg de mezcla', s.cur + ' ' + fmt(s.costKg), '') +
-        (s.hasLote ? tile('Costo del lote', s.cur + ' ' + fmt(s.costLote), fmt(s.lote) + ' kg') : '') + '</div>';
+      html += '<div class="tiles cost">' + tile('Costo por tonelada de mezcla', s.cur + ' ' + fmt(s.costT), '') +
+        (s.hasLote ? tile('Costo del lote', s.cur + ' ' + fmt(s.costLote), fmt(s.lote) + ' t') : '') + '</div>';
     }
     $('sum').innerHTML = html;
   }
@@ -360,21 +360,21 @@
     if (!r.xs) { lastSummary = null; $('out').classList.remove('on'); return; }
 
     var hasLote = isFinite(lote) && lote > 0;
-    var hasCost = isFinite(r.costKg);
+    var hasCost = isFinite(r.costT);
     var rows = r.idx.map(function (i) {
       var x = r.xs[i], c = items[i].cost;
       return {
         name: nameOf(i), x: x,
-        kg: hasLote ? lote * x / 100 : null,
+        kg: hasLote ? lote * 1000 * x / 100 : null,
         cost: hasCost ? (hasLote ? lote * x / 100 * c : x * c / 100) : null
       };
     });
     lastSummary = {
       nut: (state.nut || '').trim(), t: t, mix: r.mix, cur: cur, date: today(),
       hasLote: hasLote, lote: hasLote ? lote : 0,
-      hasCost: hasCost, costKg: r.costKg,
-      costLote: hasCost && hasLote ? r.costKg * lote : NaN,
-      totCost: hasCost ? (hasLote ? r.costKg * lote : r.costKg) : NaN,
+      hasCost: hasCost, costT: r.costT,
+      costLote: hasCost && hasLote ? r.costT * lote : NaN,
+      totCost: hasCost ? (hasLote ? r.costT * lote : r.costT) : NaN,
       rows: rows
     };
     renderSummary(lastSummary);
@@ -434,7 +434,7 @@
       state[g] = $(g).value;
       if (g === 'cur') {
         var u = document.querySelectorAll('.curlbl');
-        for (var j = 0; j < u.length; j++) u[j].textContent = 'Costo (' + curSym() + '/kg)';
+        for (var j = 0; j < u.length; j++) u[j].textContent = 'Costo (' + curSym() + '/t)';
       }
       save(); calc();
     });
