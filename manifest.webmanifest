@@ -1,18 +1,33 @@
 {
-  "id": "pearson-mezclas",
+  "id": "/pearson/",
   "name": "Cuadrado de Pearson",
   "short_name": "Pearson",
   "description": "Calcula la proporción de ingredientes para llegar a un valor objetivo, con costo",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/pearson/",
+  "scope": "/pearson/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#1d4a37",
   "theme_color": "#1d4a37",
   "lang": "es",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
