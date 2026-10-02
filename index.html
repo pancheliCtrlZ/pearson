@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Cuadrado de Pearson</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d4a37">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root {
+    --bg: #e8eee9; --surface: #ffffff; --ink: #14261f; --muted: #55695f;
+    --line: #c5d2c9; --field: #1d4a37; --field-ink: #f2f7f3; --warn: #a3362b;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1a15; --surface: #182720; --ink: #e8f0ea; --muted: #94a99d;
+      --line: #2c4237; --field: #3f8f6a; --field-ink: #06140d; --warn: #ff8f82;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: max(20px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+    min-height: 100vh; display: flex; justify-content: center;
+  }
+  main { width: 100%; max-width: 440px; }
+  h1 { font-size: 1.35rem; margin: 4px 0 4px; letter-spacing: -0.01em; }
+  .hint { color: var(--muted); font-size: 0.9rem; margin: 0 0 18px; line-height: 1.4; }
+
+  .card {
+    background: var(--surface); border: 2px solid var(--line);
+    border-radius: var(--radius); padding: 12px 16px 14px; margin-bottom: 12px;
+  }
+  .card:focus-within { border-color: var(--field); }
+  .head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .head h2 { font-size: 0.95rem; font-weight: 600; color: var(--muted); margin: 0; flex: 1; }
+  .tag { font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--line); color: var(--ink); }
+  .tag:empty { display: none; }
+  .grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 12px; align-items: end; }
+  .grid + .grid { margin-top: 10px; }
+  label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 2px; }
+  .inp { display: flex; align-items: baseline; gap: 6px; border-bottom: 2px solid var(--line); }
+  .inp:focus-within { border-color: var(--field); }
+  input {
+    flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink);
+    font: 600 1.6rem/1.3 system-ui, sans-serif; font-variant-numeric: tabular-nums; padding: 2px 0;
+  }
+  input.txt { font-size: 1.15rem; font-weight: 500; }
+  input.sm { font-size: 1.25rem; }
+  input::placeholder { color: var(--line); }
+  .unit { font-weight: 600; color: var(--muted); white-space: nowrap; }
+
+  button { font: 600 1rem system-ui, sans-serif; color: var(--ink); }
+  button:focus-visible, input:focus-visible { outline: 3px solid var(--field); outline-offset: 2px; }
+  .rm { width: 32px; height: 32px; border: 0; border-radius: 99px; background: transparent; color: var(--muted); font-size: 1.1rem; padding: 0; }
+  .rm:active { background: var(--line); }
+  .wide {
+    width: 100%; padding: 14px; border-radius: var(--radius);
+    border: 2px solid var(--line); background: transparent; margin-top: 2px;
+  }
+  .wide:active { background: var(--line); }
+  #clear { margin-top: 14px; }
+
+  .msg { min-height: 1.3em; color: var(--warn); font-size: 0.95rem; margin: 10px 0 8px; }
+
+  #out { display: none; }
+  #out.on { display: block; }
+  #diagram { width: 100%; height: auto; display: block; margin: 0 0 8px; }
+  .res {
+    background: var(--field); color: var(--field-ink);
+    border-radius: var(--radius); padding: 10px 16px;
+  }
+  .res .line { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 8px 0; }
+  .res .line + .line, .res .costo { border-top: 1px solid rgba(255,255,255,.25); }
+  .res .nm { font-weight: 600; overflow-wrap: anywhere; }
+  .res .pc { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .res .sub { display: block; text-align: right; font-size: 0.9rem; opacity: .9; font-variant-numeric: tabular-nums; }
+  .res .costo { margin-top: 6px; padding-top: 10px; }
+  .res .costo .pc { font-size: 1.35rem; }
+  .check { color: var(--muted); font-size: 0.88rem; margin: 10px 2px 0; line-height: 1.4; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Cuadrado de Pearson</h1>
+  <p class="hint">Mezcla de 2 o más ingredientes para llegar a un valor objetivo. Los ingredientes se separan solos en dos grupos, por debajo y por encima del objetivo. Las "partes" definen cuánto pesa cada uno dentro de su grupo. Usá la misma base en todos los valores (todos en materia seca o todos tal cual).</p>
+
+  <div class="card">
+    <div class="grid">
+      <div><label for="nut">Nutriente</label><div class="inp"><input class="txt" id="nut" data-g="nut" placeholder="Proteína" autocomplete="off"></div></div>
+      <div><label for="t">Objetivo</label><div class="inp"><input id="t" data-g="t" inputmode="decimal" placeholder="0" autocomplete="off"><span class="unit">%</span></div></div>
+    </div>
+    <div class="grid">
+      <div><label for="lote">Mezcla a preparar (opcional)</label><div class="inp"><input class="sm" id="lote" data-g="lote" inputmode="decimal" placeholder="0" autocomplete="off"><span class="unit">kg</span></div></div>
+      <div><label for="cur">Moneda</label><div class="inp"><input class="txt" id="cur" data-g="cur" placeholder="$" autocomplete="off"></div></div>
+    </div>
+  </div>
+
+  <div id="list"></div>
+  <button class="wide" id="add" type="button">+ Agregar ingrediente</button>
+
+  <p class="msg" id="msg" role="alert"></p>
+
+  <section id="out">
+    <svg id="diagram" viewBox="0 0 340 230" role="img" aria-label="Cuadrado de Pearson"></svg>
+    <div class="res" id="res"></div>
+    <p class="check" id="check"></p>
+  </section>
+
+  <button class="wide" id="clear" type="button">Limpiar todo</button>
+</main>
+
+<script>
+(function () {
+  // ---- cálculo ----
+  function parse(s) {
+    s = String(s).trim();
+    if (!s) return NaN;
+    if (s.indexOf(',') > -1) s = s.replace(/\./g, '').replace(',', '.');
+    return parseFloat(s);
+  }
+  function fmt(n, d) { return n.toFixed(d === undefined ? 2 : d).replace('.', ','); }
+  // items: [{content, parts, cost}] (NaN = vacío). t: objetivo.
+  function solve(items, t) {
+    var valid = [];
+    items.forEach(function (it, i) { if (isFinite(it.content)) valid.push({ i: i, c: it.content, p: isFinite(it.parts) ? it.parts : 1, cost: it.cost }); });
+    if (valid.length < 2 || !isFinite(t)) return { err: '' };
+    var lo = Infinity, hi = -Infinity;
+    valid.forEach(function (v) { lo = Math.min(lo, v.c); hi = Math.max(hi, v.c); });
+    if (t < lo || t >= hi) return { err: 'El objetivo tiene que estar entre ' + fmt(lo) + ' y ' + fmt(hi) + '.' };
+    if (valid.some(function (v) { return v.p < 0; })) return { err: 'Las partes no pueden ser negativas.' };
+    var L = valid.filter(function (v) { return v.c <= t; });
+    var H = valid.filter(function (v) { return v.c > t; });
+    function sum(a, f) { return a.reduce(function (s, v) { return s + f(v); }, 0); }
+    var sL = sum(L, function (v) { return v.p; }), sH = sum(H, function (v) { return v.p; });
+    if (sL === 0) return { err: 'Las partes del grupo por debajo del objetivo no pueden ser todas 0.' };
+    if (sH === 0) return { err: 'Las partes del grupo por encima del objetivo no pueden ser todas 0.' };
+    var avgL = sum(L, function (v) { return v.p * v.c; }) / sL;
+    var avgH = sum(H, function (v) { return v.p * v.c; }) / sH;
+    var tot = avgH - avgL;
+    var xL = (avgH - t) / tot, xH = (t - avgL) / tot;
+    var xs = {};
+    L.forEach(function (v) { xs[v.i] = 100 * xL * v.p / sL; });
+    H.forEach(function (v) { xs[v.i] = 100 * xH * v.p / sH; });
+    var costOk = valid.every(function (v) { return isFinite(v.cost); });
+    var costKg = costOk ? sum(valid, function (v) { return xs[v.i] * v.cost / 100; }) : NaN;
+    return {
+      xs: xs, idx: valid.map(function (v) { return v.i; }),
+      avgL: avgL, avgH: avgH, pL: avgH - t, pH: t - avgL,
+      nL: L.length, nH: H.length, iL: L[0].i, iH: H[0].i,
+      mix: sum(valid, function (v) { return xs[v.i] * v.c / 100; }),
+      costKg: costKg
+    };
+  }
+  // ---- fin cálculo ----
+
+  var $ = function (id) { return document.getElementById(id); };
+  var KEY = 'pearson-estado-v2';
+  var MAX = 12;
+  function blank() { return { n: '', c: '', cost: '', p: '' }; }
+  function fresh() { return { nut: '', t: '', lote: '', cur: '$', items: [blank(), blank()] }; }
+  var state = fresh();
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (saved && saved.items && saved.items.length >= 2) state = saved;
+  } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function cut(s, n) { return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+  function nameOf(i) { return (state.items[i].n || '').trim() || ('Ingrediente ' + (i + 1)); }
+
+  function build() {
+    var h = '';
+    state.items.forEach(function (it, i) {
+      h += '<div class="card" data-i="' + i + '">' +
+        '<div class="head"><h2>Ingrediente ' + (i + 1) + '</h2><span class="tag"></span>' +
+        (state.items.length > 2 ? '<button class="rm" type="button" aria-label="Quitar ingrediente ' + (i + 1) + '">✕</button>' : '') + '</div>' +
+        '<div class="grid">' +
+          '<div><label>Nombre</label><div class="inp"><input class="txt" data-k="n" placeholder="Ingrediente ' + (i + 1) + '" autocomplete="off" value="' + esc(it.n) + '"></div></div>' +
+          '<div><label>Contenido</label><div class="inp"><input data-k="c" inputmode="decimal" placeholder="0" autocomplete="off" value="' + esc(it.c) + '"><span class="unit">%</span></div></div>' +
+        '</div>' +
+        '<div class="grid">' +
+          '<div><label>Costo (opcional)</label><div class="inp"><input class="sm" data-k="cost" inputmode="decimal" placeholder="0" autocomplete="off" value="' + esc(it.cost) + '"><span class="unit cur">' + esc(state.cur || '$') + '/kg</span></div></div>' +
+          '<div><label>Partes en su grupo</label><div class="inp"><input class="sm" data-k="p" inputmode="decimal" placeholder="1" autocomplete="off" value="' + esc(it.p) + '"></div></div>' +
+        '</div></div>';
+    });
+    $('list').innerHTML = h;
+    $('add').style.display = state.items.length >= MAX ? 'none' : '';
+  }
+
+  function diagram(r, t) {
+    function box(x, y, w, hh, top, bottom, dark) {
+      var fill = dark ? 'var(--field)' : 'var(--surface)', stroke = dark ? 'var(--field)' : 'var(--line)', ink = dark ? 'var(--field-ink)' : 'var(--ink)';
+      return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" rx="10" fill="' + fill + '" stroke="' + stroke + '" stroke-width="2"/>' +
+        '<text x="' + (x + w / 2) + '" y="' + (y + 22) + '" text-anchor="middle" font-size="12" fill="' + ink + '" opacity=".8">' + top + '</text>' +
+        '<text x="' + (x + w / 2) + '" y="' + (y + 43) + '" text-anchor="middle" font-size="19" font-weight="700" fill="' + ink + '">' + bottom + '</text>';
+    }
+    var lblL = r.nL === 1 ? esc(cut(nameOf(r.iL), 14)) : 'Grupo bajo (' + r.nL + ')';
+    var lblH = r.nH === 1 ? esc(cut(nameOf(r.iH), 14)) : 'Grupo alto (' + r.nH + ')';
+    var h = '<line x1="108" y1="40" x2="232" y2="190" stroke="var(--muted)" stroke-width="2"/>' +
+            '<line x1="108" y1="190" x2="232" y2="40" stroke="var(--muted)" stroke-width="2"/>';
+    h += box(4, 14, 104, 52, lblL, fmt(r.avgL), false);
+    h += box(4, 164, 104, 52, lblH, fmt(r.avgH), false);
+    h += box(134, 88, 72, 54, 'objetivo', fmt(t), true);
+    h += box(232, 14, 104, 52, 'partes grupo bajo', fmt(r.pL), false);
+    h += box(232, 164, 104, 52, 'partes grupo alto', fmt(r.pH), false);
+    $('diagram').innerHTML = h;
+  }
+
+  function calc() {
+    var t = parse(state.t), lote = parse(state.lote), cur = (state.cur || '').trim() || '$';
+    var items = state.items.map(function (it) { return { content: parse(it.c), parts: parse(it.p), cost: parse(it.cost) }; });
+
+    // etiquetas de grupo
+    var cards = $('list').children;
+    items.forEach(function (it, i) {
+      var tag = '';
+      if (isFinite(it.content) && isFinite(t)) tag = it.content <= t ? 'Grupo bajo' : 'Grupo alto';
+      cards[i].querySelector('.tag').textContent = tag;
+    });
+
+    var r = solve(items, t);
+    $('msg').textContent = r.err || '';
+    $('check').textContent = '';
+    if (!r.xs) { $('out').classList.remove('on'); return; }
+
+    diagram(r, t);
+    var hasLote = isFinite(lote) && lote > 0;
+    var hasCost = isFinite(r.costKg);
+    var html = '';
+    r.idx.forEach(function (i) {
+      var x = r.xs[i], c = items[i].cost;
+      var sub = [];
+      if (hasLote) sub.push(fmt(lote * x / 100) + ' kg');
+      if (hasCost) sub.push(cur + ' ' + fmt(x * c / 100) + ' por kg de mezcla');
+      html += '<div class="line"><span class="nm">' + esc(nameOf(i)) + '</span><span><span class="pc">' + fmt(x) + ' %</span>' +
+        sub.map(function (s) { return '<span class="sub">' + esc(s) + '</span>'; }).join('') + '</span></div>';
+    });
+    if (hasCost) {
+      html += '<div class="line costo"><span class="nm">Costo de la mezcla</span><span><span class="pc">' + esc(cur) + ' ' + fmt(r.costKg) + '</span><span class="sub">por kg</span>' +
+        (hasLote ? '<span class="sub">' + esc(cur) + ' ' + fmt(r.costKg * lote) + ' el lote de ' + fmt(lote, lote % 1 ? 2 : 0) + ' kg</span>' : '') + '</span></div>';
+    }
+    $('res').innerHTML = html;
+
+    var nut = (state.nut || '').trim();
+    var note = 'Verificación: la mezcla da ' + fmt(r.mix) + ' %' + (nut ? ' de ' + nut.toLowerCase() : '') + '.';
+    if (!hasCost) {
+      var anyCost = items.some(function (it, i) { return r.xs[i] !== undefined && isFinite(it.cost); });
+      if (anyCost) {
+        var falta = r.idx.filter(function (i) { return !isFinite(items[i].cost); }).map(nameOf);
+        note += ' Para calcular el costo falta cargar el de: ' + falta.join(', ') + '.';
+      }
+    }
+    $('check').textContent = note;
+    $('out').classList.add('on');
+  }
+
+  // eventos
+  $('list').addEventListener('input', function (e) {
+    var k = e.target.getAttribute('data-k');
+    if (!k) return;
+    var i = +e.target.closest('.card').getAttribute('data-i');
+    state.items[i][k] = e.target.value;
+    save(); calc();
+  });
+  $('list').addEventListener('click', function (e) {
+    var b = e.target.closest('.rm');
+    if (!b) return;
+    state.items.splice(+b.closest('.card').getAttribute('data-i'), 1);
+    build(); save(); calc();
+  });
+  ['nut', 't', 'lote', 'cur'].forEach(function (g) {
+    $(g).value = state[g];
+    $(g).addEventListener('input', function () {
+      state[g] = $(g).value;
+      if (g === 'cur') {
+        var u = document.querySelectorAll('.unit.cur');
+        for (var j = 0; j < u.length; j++) u[j].textContent = ($(g).value.trim() || '$') + '/kg';
+      }
+      save(); calc();
+    });
+  });
+  $('add').addEventListener('click', function () {
+    if (state.items.length >= MAX) return;
+    state.items.push(blank());
+    build(); save(); calc();
+    var cards = $('list').children;
+    var last = cards[cards.length - 1];
+    last.scrollIntoView({ block: 'center' });
+    last.querySelector('input').focus();
+  });
+  $('clear').addEventListener('click', function () {
+    state = fresh();
+    ['nut', 't', 'lote', 'cur'].forEach(function (g) { $(g).value = state[g]; });
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    build(); calc();
+    window.scrollTo(0, 0);
+  });
+
+  build(); calc();
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+}
+</script>
+</body>
+</html>
