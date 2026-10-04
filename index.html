@@ -91,6 +91,9 @@
   .tbl .c { padding: 8px 0 8px 10px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .tbl .c.n { text-align: left; padding-left: 0; font-weight: 600; white-space: normal; overflow-wrap: anywhere; min-width: 0; }
   .tbl .c.h { font-size: 0.72rem; font-weight: 600; color: var(--muted); border-bottom: 2px solid var(--ink); padding-bottom: 5px; }
+  .tbl.dense { font-size: 0.8rem; }
+  .tbl.dense .c { padding-left: 6px; }
+  .tbl.dense .c.h { font-size: 0.68rem; }
   .tbl .c.t { font-weight: 700; border-bottom: 0; border-top: 2px solid var(--ink); margin-top: -1px; }
   .sum .tiles.cost { padding-top: 10px; }
   .check { color: var(--muted); font-size: 0.85rem; margin: 10px 2px 0; line-height: 1.4; }
@@ -142,7 +145,7 @@
     if (s.indexOf(',') > -1) s = s.replace(/\./g, '').replace(',', '.');
     return parseFloat(s);
   }
-  function fmt(n, d) { return n.toFixed(d === undefined ? 2 : d).replace('.', ','); }
+  function fmt(n, d) { return n.toFixed(d === undefined ? 1 : d).replace('.', ','); }
   // items: [{content, parts, cost}] (NaN = vacío). t: objetivo.
   function solve(items, t) {
     var valid = [];
@@ -177,6 +180,7 @@
 
   // ---- imagen ----
   var FF = 'Roboto, Arial, sans-serif';
+  var AUTOR = 'Ing. Agr. Francisco Elizondo';
   function fit(ctx, text, maxW, px, weight) {
     while (px > 14) {
       ctx.font = weight + ' ' + px + 'px ' + FF;
@@ -202,16 +206,17 @@
   function drawSummary(s, canvas) {
     var W = 1080, P = 48, GREEN = '#1d4a37', INK = '#14261f', MUTED = '#55695f', LINE = '#d3ddd6', TILE = '#eef3ef';
     var nRows = s.rows.length;
-    var H = 190 + 24 + 150 + 30 + 64 + nRows * 70 + 80 + (s.hasCost ? 30 + 150 : 0) + 48;
+    var BH = 170;
+    var H = BH + 24 + 150 + 30 + 64 + nRows * 70 + 80 + (s.hasCost ? 30 + 150 : 0) + 48;
     canvas.width = W; canvas.height = H;
     var ctx = canvas.getContext('2d');
     ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
 
     // encabezado
-    ctx.fillStyle = GREEN; ctx.fillRect(0, 0, W, 170);
+    ctx.fillStyle = GREEN; ctx.fillRect(0, 0, W, BH);
     ctx.fillStyle = '#f2f7f3'; ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
     ctx.font = '700 56px ' + FF; ctx.fillText('Resumen de mezcla', P, 88);
-    ctx.font = '400 30px ' + FF; ctx.globalAlpha = 0.85; ctx.fillText('Cuadrado de Pearson  ·  ' + s.date, P, 134); ctx.globalAlpha = 1;
+    ctx.font = '400 30px ' + FF; ctx.globalAlpha = 0.9; ctx.fillText(AUTOR + '  ·  ' + s.date, P, 134); ctx.globalAlpha = 1;
 
     function tile(x, y, w, label, value, sub) {
       ctx.fillStyle = TILE; rrect(ctx, x, y, w, 150, 18); ctx.fill();
@@ -220,8 +225,7 @@
       ctx.fillStyle = INK; ctx.font = '700 ' + px + 'px ' + FF; ctx.fillText(value, x + 22, y + 92);
       if (sub) { ctx.fillStyle = MUTED; ctx.font = '400 26px ' + FF; ctx.fillText(trunc(ctx, sub, w - 44), x + 22, y + 130); }
     }
-    var y = 190 + 24 - 24 + 24; // 214 - se deja un respiro bajo el encabezado
-    y = 194;
+    var y = BH + 24;
     var tw = (W - 2 * P - 20) / 2;
     var nutTxt = s.nut || '';
     tile(P, y, tw, 'Objetivo', fmt(s.t) + ' %', nutTxt);
@@ -231,18 +235,27 @@
     // tabla
     var cols = ['n', 'p'];
     if (s.hasLote) cols.push('k');
-    if (s.hasCost) cols.push('c');
-    var wd = { p: 170, k: 210, c: 260 };
+    if (s.hasCost) { cols.push('u'); cols.push('c'); }
+    var head = { n: 'Ingrediente', p: '%', k: 'kg', u: s.cur + '/t', c: 'Subtotal' };
+    function cellOf(r) { return { n: r.name, p: fmt(r.x) + ' %', k: r.kg === null ? '' : fmt(r.kg), u: r.price === null ? '' : fmt(r.price), c: r.cost === null ? '' : fmt(r.cost) }; }
+    var totRow = { n: 'Total', p: '100,0 %', k: s.hasLote ? fmt(s.lote * 1000) : '', u: '', c: s.hasCost ? fmt(s.totCost) : '' };
+    var wd = {};
+    cols.slice(1).forEach(function (c) {
+      ctx.font = '700 24px ' + FF; var mw = ctx.measureText(head[c]).width;
+      ctx.font = '400 32px ' + FF;
+      s.rows.forEach(function (r) { mw = Math.max(mw, ctx.measureText(cellOf(r)[c]).width); });
+      ctx.font = '700 32px ' + FF; mw = Math.max(mw, ctx.measureText(totRow[c]).width);
+      wd[c] = Math.ceil(mw) + 34;
+    });
     var edge = {}, x = W - P;
     for (var i = cols.length - 1; i >= 1; i--) { edge[cols[i]] = x; x -= wd[cols[i]]; }
     var nameW = x - P - 10;
-    var head = { n: 'Ingrediente', p: '%', k: 'kg', c: 'Costo ' + s.cur + (s.hasLote ? '' : '/t') };
     ctx.fillStyle = MUTED; ctx.font = '700 24px ' + FF;
     cols.forEach(function (c) { ctx.textAlign = c === 'n' ? 'left' : 'right'; ctx.fillText(head[c], c === 'n' ? P : edge[c], y + 40); });
     ctx.fillStyle = INK; ctx.fillRect(P, y + 54, W - 2 * P, 3);
     y += 64;
     s.rows.forEach(function (r) {
-      var cell = { n: r.name, p: fmt(r.x) + ' %', k: r.kg === null ? '' : fmt(r.kg), c: r.cost === null ? '' : fmt(r.cost) };
+      var cell = cellOf(r);
       ctx.fillStyle = INK;
       cols.forEach(function (c) {
         ctx.textAlign = c === 'n' ? 'left' : 'right';
@@ -254,10 +267,9 @@
     });
     // total
     ctx.fillStyle = INK; ctx.fillRect(P, y, W - 2 * P, 3);
-    var tot = { n: 'Total', p: '100,00 %', k: s.hasLote ? fmt(s.lote * 1000) : '', c: s.hasCost ? fmt(s.totCost) : '' };
     cols.forEach(function (c) {
       ctx.textAlign = c === 'n' ? 'left' : 'right'; ctx.font = '700 32px ' + FF;
-      ctx.fillText(tot[c], c === 'n' ? P : edge[c], y + 52);
+      ctx.fillText(totRow[c], c === 'n' ? P : edge[c], y + 52);
     });
     y += 80;
 
@@ -319,16 +331,16 @@
   function renderSummary(s) {
     var cols = ['n', 'p'];
     if (s.hasLote) cols.push('k');
-    if (s.hasCost) cols.push('c');
-    var head = { n: 'Ingrediente', p: '%', k: 'kg', c: 'Costo ' + s.cur + (s.hasLote ? '' : '/t') };
+    if (s.hasCost) { cols.push('u'); cols.push('c'); }
+    var head = { n: 'Ingrediente', p: '%', k: 'kg', u: s.cur + '/t', c: 'Subtotal' };
     var tpl = 'minmax(0,1fr)' + cols.slice(1).map(function () { return ' auto'; }).join('');
-    var t = '<div class="tbl" style="grid-template-columns:' + tpl + '">';
+    var t = '<div class="tbl' + (cols.length > 4 ? ' dense' : '') + '" style="grid-template-columns:' + tpl + '">';
     cols.forEach(function (c) { t += '<div class="c h' + (c === 'n' ? ' n' : '') + '">' + esc(head[c]) + '</div>'; });
     s.rows.forEach(function (r) {
-      var cell = { n: r.name, p: fmt(r.x) + ' %', k: r.kg === null ? '' : fmt(r.kg), c: r.cost === null ? '' : fmt(r.cost) };
+      var cell = { n: r.name, p: fmt(r.x) + ' %', k: r.kg === null ? '' : fmt(r.kg), u: r.price === null ? '' : fmt(r.price), c: r.cost === null ? '' : fmt(r.cost) };
       cols.forEach(function (c) { t += '<div class="c' + (c === 'n' ? ' n' : '') + '">' + esc(cell[c]) + '</div>'; });
     });
-    var tot = { n: 'Total', p: '100,00 %', k: s.hasLote ? fmt(s.lote * 1000) : '', c: s.hasCost ? fmt(s.totCost) : '' };
+    var tot = { n: 'Total', p: '100,0 %', k: s.hasLote ? fmt(s.lote * 1000) : '', u: '', c: s.hasCost ? fmt(s.totCost) : '' };
     cols.forEach(function (c) { t += '<div class="c t' + (c === 'n' ? ' n' : '') + '">' + esc(tot[c]) + '</div>'; });
     t += '</div>';
 
@@ -365,6 +377,7 @@
       var x = r.xs[i], c = items[i].cost;
       return {
         name: nameOf(i), x: x,
+        price: hasCost ? c : null,
         kg: hasLote ? lote * 1000 * x / 100 : null,
         cost: hasCost ? (hasLote ? lote * x / 100 * c : x * c / 100) : null
       };
