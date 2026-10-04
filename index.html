@@ -87,10 +87,10 @@
   .tile span { display: block; font-size: 0.72rem; color: var(--muted); }
   .tile strong { display: block; font-size: 1.15rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
   .tile em { display: block; font-style: normal; font-size: 0.75rem; color: var(--muted); min-height: 1em; overflow-wrap: anywhere; }
-  .tbl { display: grid; padding: 0 14px; font-size: 0.92rem; }
+  .tbl { display: grid; padding: 0 14px 8px; font-size: 0.92rem; }
   .tbl .c { padding: 8px 0 8px 10px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .tbl .c.n { text-align: left; padding-left: 0; font-weight: 600; white-space: normal; overflow-wrap: anywhere; min-width: 0; }
-  .tbl .c.h { font-size: 0.72rem; font-weight: 600; color: var(--muted); border-bottom: 2px solid var(--ink); padding-bottom: 5px; }
+  .tbl .c.h { line-height: 1.15; vertical-align: bottom; font-size: 0.72rem; font-weight: 600; color: var(--muted); border-bottom: 2px solid var(--ink); padding-bottom: 5px; }
   .tbl.dense { font-size: 0.8rem; }
   .tbl.dense .c { padding-left: 6px; }
   .tbl.dense .c.h { font-size: 0.68rem; }
@@ -207,7 +207,7 @@
     var W = 1080, P = 48, GREEN = '#1d4a37', INK = '#14261f', MUTED = '#55695f', LINE = '#d3ddd6', TILE = '#eef3ef';
     var nRows = s.rows.length;
     var BH = 170;
-    var H = BH + 24 + 150 + 30 + 64 + nRows * 70 + 80 + (s.hasCost ? 30 + 150 : 0) + 48;
+    var H = BH + 24 + 150 + 30 + 64 + nRows * 70 + 80 + 48;
     canvas.width = W; canvas.height = H;
     var ctx = canvas.getContext('2d');
     ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
@@ -235,10 +235,10 @@
     // tabla
     var cols = ['n', 'p'];
     if (s.hasLote) cols.push('k');
-    if (s.hasCost) { cols.push('u'); cols.push('c'); }
-    var head = { n: 'Ingrediente', p: '%', k: 'kg', u: s.cur + '/t', c: 'Subtotal' };
-    function cellOf(r) { return { n: r.name, p: fmt(r.x) + ' %', k: r.kg === null ? '' : fmt(r.kg), u: r.price === null ? '' : fmt(r.price), c: r.cost === null ? '' : fmt(r.cost) }; }
-    var totRow = { n: 'Total', p: '100,0 %', k: s.hasLote ? fmt(s.lote * 1000) : '', u: '', c: s.hasCost ? fmt(s.totCost) : '' };
+    if (s.hasCost) cols.push('u');
+    var head = { n: 'Ingrediente', p: '%', k: 'Cantidad (kg)', u: 'Costo (' + s.cur + '/t)' };
+    function cellOf(r) { return { n: r.name, p: fmt(r.x) + ' %', k: r.kg === null ? '' : fmt(r.kg), u: r.price === null ? '' : fmt(r.price) }; }
+    var totRow = { n: 'Total', p: '100,0 %', k: s.hasLote ? fmt(s.lote * 1000) : '', u: s.hasCost ? fmt(s.costT) : '' };
     var wd = {};
     cols.slice(1).forEach(function (c) {
       ctx.font = '700 24px ' + FF; var mw = ctx.measureText(head[c]).width;
@@ -273,16 +273,6 @@
     });
     y += 80;
 
-    // costos
-    if (s.hasCost) {
-      y += 30; ctx.textAlign = 'left';
-      if (s.hasLote) {
-        tile(P, y, tw, 'Costo por tonelada de mezcla', s.cur + ' ' + fmt(s.costT), '');
-        tile(P + tw + 20, y, tw, 'Costo del lote', s.cur + ' ' + fmt(s.costLote), fmt(s.lote) + ' t');
-      } else {
-        tile(P, y, W - 2 * P, 'Costo por tonelada de mezcla', s.cur + ' ' + fmt(s.costT), '');
-      }
-    }
     return canvas;
   }
   // ---- fin imagen ----
@@ -331,16 +321,16 @@
   function renderSummary(s) {
     var cols = ['n', 'p'];
     if (s.hasLote) cols.push('k');
-    if (s.hasCost) { cols.push('u'); cols.push('c'); }
-    var head = { n: 'Ingrediente', p: '%', k: 'kg', u: s.cur + '/t', c: 'Subtotal' };
+    if (s.hasCost) cols.push('u');
+    var head = { n: 'Ingrediente', p: '%', k: 'Cantidad (kg)', u: 'Costo (' + s.cur + '/t)' };
     var tpl = 'minmax(0,1fr)' + cols.slice(1).map(function () { return ' auto'; }).join('');
     var t = '<div class="tbl' + (cols.length > 4 ? ' dense' : '') + '" style="grid-template-columns:' + tpl + '">';
-    cols.forEach(function (c) { t += '<div class="c h' + (c === 'n' ? ' n' : '') + '">' + esc(head[c]) + '</div>'; });
+    cols.forEach(function (c) { t += '<div class="c h' + (c === 'n' ? ' n' : '') + '">' + esc(head[c]).replace(' (', '<br>(') + '</div>'; });
     s.rows.forEach(function (r) {
-      var cell = { n: r.name, p: fmt(r.x) + ' %', k: r.kg === null ? '' : fmt(r.kg), u: r.price === null ? '' : fmt(r.price), c: r.cost === null ? '' : fmt(r.cost) };
+      var cell = { n: r.name, p: fmt(r.x) + ' %', k: r.kg === null ? '' : fmt(r.kg), u: r.price === null ? '' : fmt(r.price) };
       cols.forEach(function (c) { t += '<div class="c' + (c === 'n' ? ' n' : '') + '">' + esc(cell[c]) + '</div>'; });
     });
-    var tot = { n: 'Total', p: '100,0 %', k: s.hasLote ? fmt(s.lote * 1000) : '', u: '', c: s.hasCost ? fmt(s.totCost) : '' };
+    var tot = { n: 'Total', p: '100,0 %', k: s.hasLote ? fmt(s.lote * 1000) : '', u: s.hasCost ? fmt(s.costT) : '' };
     cols.forEach(function (c) { t += '<div class="c t' + (c === 'n' ? ' n' : '') + '">' + esc(tot[c]) + '</div>'; });
     t += '</div>';
 
@@ -348,10 +338,6 @@
     var html = '<div class="sum-head"><strong>Resumen de mezcla</strong><span>' + esc(s.date) + '</span></div>';
     html += '<div class="tiles">' + tile('Objetivo', fmt(s.t) + ' %', s.nut) + tile('Mezcla obtenida', fmt(s.mix) + ' %', s.nut) + '</div>';
     html += t;
-    if (s.hasCost) {
-      html += '<div class="tiles cost">' + tile('Costo por tonelada de mezcla', s.cur + ' ' + fmt(s.costT), '') +
-        (s.hasLote ? tile('Costo del lote', s.cur + ' ' + fmt(s.costLote), fmt(s.lote) + ' t') : '') + '</div>';
-    }
     $('sum').innerHTML = html;
   }
 
